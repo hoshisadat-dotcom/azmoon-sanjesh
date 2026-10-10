@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سامانه آنلاین آزمون سنجش و اندازه‌گیری آموزشی</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Vazirmatn Persian Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Vazirmatn', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#2563eb',
+                            600: '#1d4ed8',
+                            700: '#1e40af',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background-color: #f8fafc;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between selection:bg-brand-500 selection:text-white">
+
+    <!-- Top Header Navigation -->
+    <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-40 border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3 space-x-reverse">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 flex items-center justify-center shadow-md">
+                    <i class="fa-solid fa-graduation-cap text-xl text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-base sm:text-lg font-bold leading-tight">آزمون آنلاین سنجش و اندازه‌گیری</h1>
+                    <p class="text-xs text-slate-400">فصل سوم: دسته‌بندی روش‌های اندازه‌گیری و سنجش</p>
+                </div>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <div class="flex items-center space-x-2 space-x-reverse bg-slate-800 p-1 rounded-xl border border-slate-700">
+                <button id="tab-student-btn" onclick="switchTab('student')" class="px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 bg-brand-600 text-white shadow">
+                    <i class="fa-solid fa-pen-to-square ml-1.5"></i> پورتال دانشجو
+                </button>
+                <button id="tab-teacher-btn" onclick="switchTab('teacher')" class="px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 text-slate-300 hover:text-white hover:bg-slate-700/60">
+                    <i class="fa-solid fa-chart-line ml-1.5"></i> پنل استاد و گزارش‌ها
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+
+        <!-- STUDENT VIEW -->
+        <section id="student-view" class="space-y-6">
+
+            <!-- Welcome / Registration Card -->
+            <div id="student-login-card" class="bg-white rounded-2xl shadow-xl border border-slate-200/80 overflow-hidden transition-all duration-300">
+                <div class="bg-gradient-to-r from-slate-900 via-brand-900 to-slate-900 p-6 sm:p-8 text-white relative">
+                    <div class="max-w-2xl">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-brand-500/30 text-brand-200 border border-brand-400/30 mb-3">
+                            <i class="fa-solid fa-star text-amber-400 ml-1.5"></i> آزمون آنلاین ۱۰ سوالی (سطح پیشرفته)
+                        </span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold mb-2">به آزمون سنجش و اندازه‌گیری خوش آمدید</h2>
+                        <p class="text-slate-300 text-sm leading-relaxed">
+                            این آزمون شامل ۱۰ سوال چهارگزینه‌ای سناریومحور بر اساس تکسونومی بلوم (سطوح درک، کاربرد، تحلیل و ارزیابی) می‌باشد.
+                        </p>
+                    </div>
+                </div>
+
+                <form id="student-info-form" onsubmit="startExam(event)" class="p-6 sm:p-8 space-y-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-2">نام و نام خانوادگی کامل <span class="text-rose-500">*</span></label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400"><i class="fa-solid fa-user"></i></span>
+                                <input type="text" id="student-name" required placeholder="مثال: علی محمدی" class="w-full pr-10 pl-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm outline-none transition">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-2">شماره دانشجویی / کد ملی <span class="text-rose-500">*</span></label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400"><i class="fa-solid fa-id-card"></i></span>
+                                <input type="text" id="student-id" required placeholder="مثال: 40112345" class="w-full pr-10 pl-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm outline-none transition">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-amber-50/80 border border-amber-200 rounded-xl p-4 flex items-start space-x-3 space-x-reverse">
+                        <i class="fa-solid fa-triangle-exclamation text-amber-600 text-lg mt-0.5"></i>
+                        <div class="text-xs text-amber-900 leading-relaxed">
+                            <p class="font-bold mb-1">راهنمای شرکت در آزمون:</p>
+                            <ul class="list-disc list-inside space-y-1 text-amber-800">
+                                <li>امکان بازگشت به سوالات قبلی وجود ندارد. پس از عبور از هر سوال، دکمه بازگشت فعال نخواهد بود.</li>
+                                <li>در پایان آزمون، تنها نمره کلی به شما نمایش داده می‌شود.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg hover:shadow-brand-500/25 transition duration-200 flex items-center justify-center text-sm sm:text-base">
+                        <span>شروع آزمون و پاسخ‌دهی</span>
+                        <i class="fa-solid fa-arrow-left mr-2"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Active Exam Card (Hidden by default) -->
+            <div id="exam-card" class="hidden bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+                <!-- Exam Top Info Bar -->
+                <div class="bg-slate-900 text-white p-4 sm:p-6 flex flex-wrap items-center justify-between gap-4 border-b border-slate-800">
+                    <div class="flex items-center space-x-3 space-x-reverse">
+                        <span id="question-badge-counter" class="bg-brand-600 text-white font-black text-xs sm:text-sm px-3 py-1.5 rounded-lg shadow-sm">
+                            سوال ۱ از ۱۰
+                        </span>
+                        <span id="bloom-level-tag" class="bg-amber-500/20 text-amber-300 border border-amber-500/30 font-semibold text-xs px-2.5 py-1 rounded-md">
+                            سطح بلوم: تحلیل
+                        </span>
+                    </div>
+
+                    <div class="flex items-center space-x-4 space-x-reverse text-xs sm:text-sm text-slate-300">
+                        <div class="flex items-center">
+                            <i class="fa-regular fa-clock ml-1.5 text-brand-400"></i>
+                            <span>زمان سپری‌شده: <strong id="exam-timer" class="text-white font-mono dir-ltr inline-block">00:00</strong></span>
+                        </div>
+                        <div class="h-4 w-px bg-slate-700"></div>
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-user-graduate ml-1.5 text-indigo-400"></i>
+                            <span id="display-student-name" class="font-semibold text-white">دانشجو</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="w-full bg-slate-100 h-2">
+                    <div id="progress-bar" class="bg-gradient-to-r from-brand-500 to-indigo-600 h-2 transition-all duration-300" style="width: 10%;"></div>
+                </div>
+
+                <!-- Question & Options Container -->
+                <div class="p-6 sm:p-8 space-y-6">
+                    <!-- Question Text -->
+                    <div class="space-y-3">
+                        <div class="text-xs font-bold text-brand-600 uppercase tracking-wider">سناریو / متن سوال</div>
+                        <h3 id="question-text" class="text-base sm:text-lg font-bold text-slate-800 leading-relaxed">
+                            متن سوال در اینجا قرار می‌گیرد...
+                        </h3>
+                    </div>
+
+                    <!-- Options List -->
+                    <div id="options-container" class="space-y-3 pt-2">
+                        <!-- Dynamic Options -->
+                    </div>
+
+                    <!-- Question Navigation List (Pills) -->
+                    <div class="pt-6 border-t border-slate-100">
+                        <p class="text-xs font-bold text-slate-500 mb-3">وضعیت پاسخ‌دهی به سوالات:</p>
+                        <div id="question-pills-container" class="flex flex-wrap gap-2">
+                            <!-- Pills 1 to 10 -->
+                        </div>
+                    </div>
+
+                    <!-- Bottom Nav Buttons -->
+                    <div class="flex items-center justify-between pt-4 border-t border-slate-100 gap-3">
+                        <div class="text-xs text-amber-700 font-semibold bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-200 flex items-center">
+                            <i class="fa-solid fa-lock ml-1.5 text-amber-600"></i> امکان بازگشت به سوال قبل وجود ندارد
+                        </div>
+
+                        <button id="next-q-btn" onclick="navigateQuestion(1)" class="px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs sm:text-sm flex items-center shadow-md transition">
+                            سوال بعدی <i class="fa-solid fa-chevron-left mr-1.5"></i>
+                        </button>
+
+                        <button id="submit-exam-btn" onclick="confirmExamSubmission()" class="hidden px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm flex items-center shadow-md shadow-emerald-600/20 transition">
+                            <i class="fa-solid fa-check-double ml-1.5"></i> ثبت نهایی آزمون
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exam Result Card (Hidden by default) -->
+            <div id="result-card" class="hidden bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden space-y-6 p-6 sm:p-8">
+                <div class="text-center max-w-xl mx-auto space-y-3 py-4">
+                    <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto text-3xl shadow-inner">
+                        <i class="fa-solid fa-award"></i>
+                    </div>
+                    <h2 class="text-2xl font-extrabold text-slate-900">نتیجه آزمون شما</h2>
+                    <p class="text-slate-500 text-xs sm:text-sm">پاسخ‌های شما با موفقیت در سیستم ثبت گردید.</p>
+                </div>
+
+                <!-- Score Banner Stats -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-slate-50 p-4 sm:p-6 rounded-2xl border border-slate-200/80">
+                    <div class="text-center p-3 bg-white rounded-xl shadow-sm border border-slate-100">
+                        <span class="block text-xs font-bold text-slate-400 mb-1">نمره کل</span>
+                        <span id="score-percentage" class="text-2xl sm:text-3xl font-black text-brand-600">0%</span>
+                    </div>
+                    <div class="text-center p-3 bg-white rounded-xl shadow-sm border border-slate-100">
+                        <span class="block text-xs font-bold text-slate-400 mb-1">تعداد پاسخ درست</span>
+                        <span id="score-correct-count" class="text-2xl sm:text-3xl font-black text-emerald-600">0 / 10</span>
+                    </div>
+                    <div class="text-center p-3 bg-white rounded-xl shadow-sm border border-slate-100">
+                        <span class="block text-xs font-bold text-slate-400 mb-1">پاسخ نادرست</span>
+                        <span id="score-wrong-count" class="text-2xl sm:text-3xl font-black text-rose-500">0</span>
+                    </div>
+                    <div class="text-center p-3 bg-white rounded-xl shadow-sm border border-slate-100">
+                        <span class="block text-xs font-bold text-slate-400 mb-1">زمان کل</span>
+                        <span id="score-total-time" class="text-xl sm:text-2xl font-bold text-slate-700 font-mono mt-1 block">00:00</span>
+                    </div>
+                </div>
+
+                <div class="pt-6 border-t border-slate-200 flex justify-center">
+                    <button onclick="resetAppToHome()" class="px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm shadow-md transition">
+                        <i class="fa-solid fa-rotate-right ml-1.5"></i> بازگشت به صفحه اصلی
+                    </button>
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- TEACHER VIEW (ADMIN DASHBOARD) -->
+        <section id="teacher-view" class="hidden space-y-6">
+
+            <!-- Teacher Header & Stats Overview -->
+            <div class="bg-white rounded-2xl shadow-xl border border-slate-200 p-6 sm:p-8">
+                <div class="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-slate-200">
+                    <div>
+                        <div class="flex items-center space-x-2 space-x-reverse">
+                            <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
+                            <span class="text-xs font-bold text-emerald-600">سامانه برخط ثبت پاسخ‌ها</span>
+                        </div>
+                        <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-1">پنل مدیریت استاد و نتایج آزمون</h2>
+                        <p class="text-xs sm:text-sm text-slate-500 mt-1">مشاهده زنده نمرات، آمار کلاسی و گزارش روان‌سنجی پاسخ‌های ثبت‌شده دانشجویان.</p>
+                    </div>
+
+                    <div class="flex items-center space-x-2 space-x-reverse">
+                        <button onclick="exportResultsCSV()" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex items-center transition border border-slate-300">
+                            <i class="fa-solid fa-file-csv text-emerald-600 text-base ml-1.5"></i> خروجی فایل اکسل (CSV)
+                        </button>
+                        <button onclick="refreshDataFromFirestore()" class="px-4 py-2.5 rounded-xl bg-brand-50 hover:bg-brand-100 text-brand-700 text-xs font-bold flex items-center transition border border-brand-200">
+                            <i class="fa-solid fa-arrows-rotate ml-1.5"></i> بروزرسانی
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Admin Analytics Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-500">تعداد شرکت‌کنندگان</span>
+                            <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center text-sm"><i class="fa-solid fa-users"></i></div>
+                        </div>
+                        <div id="stat-total-students" class="text-2xl font-extrabold text-slate-900 mt-2">0 نفر</div>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-500">میانگین نمره‌ها</span>
+                            <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center text-sm"><i class="fa-solid fa-chart-simple"></i></div>
+                        </div>
+                        <div id="stat-avg-score" class="text-2xl font-extrabold text-emerald-600 mt-2">0%</div>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-500">بالاترین نمره</span>
+                            <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center text-sm"><i class="fa-solid fa-trophy"></i></div>
+                        </div>
+                        <div id="stat-highest-score" class="text-2xl font-extrabold text-amber-600 mt-2">0%</div>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-500">سخت‌ترین سوال کلاس</span>
+                            <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center text-sm"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                        </div>
+                        <div id="stat-hardest-q" class="text-lg font-bold text-purple-700 mt-2">سوال -</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submissions Table Card -->
+            <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+                <div class="p-6 border-b border-slate-200 flex items-center justify-between">
+                    <h3 class="font-extrabold text-slate-900 text-base flex items-center">
+                        <i class="fa-solid fa-table-list text-brand-600 ml-2"></i> لیست پاسخ‌نامه‌های دریافتی
+                    </h3>
+                    <span id="live-data-badge" class="text-xs text-slate-500 bg-slate-100 px-2.5 py-1 rounded-md border border-slate-200">
+                        پایگاه داده: فعال (آماده دریافت)
+                    </span>
+                </div>
+
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-right text-xs sm:text-sm">
+                        <thead class="bg-slate-50 text-slate-600 font-bold border-b border-slate-200 uppercase">
+                            <tr>
+                                <th class="p-4">#</th>
+                                <th class="p-4">نام دانشجو</th>
+                                <th class="p-4">شماره دانشجویی</th>
+                                <th class="p-4">نمره کل</th>
+                                <th class="p-4">پاسخ‌های درست</th>
+                                <th class="p-4">زمان آزمون</th>
+                                <th class="p-4">تاریخ و زمان ثبت</th>
+                                <th class="p-4 text-center">جزئیات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="submissions-table-body" class="divide-y divide-slate-100 text-slate-700">
+                            <tr>
+                                <td colspan="8" class="p-8 text-center text-slate-400">
+                                    <i class="fa-solid fa-inbox text-3xl mb-2 block"></i>
+                                    هنوز پاسخی ثبت نشده است. دانش‌آموزان با دادن آزمون، نتایج خود را به این جدول ارسال خواهند کرد.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Item Analysis Difficulty Chart Card -->
+            <div class="bg-white rounded-2xl shadow-xl border border-slate-200 p-6 sm:p-8">
+                <h3 class="font-extrabold text-slate-900 text-base mb-2 flex items-center">
+                    <i class="fa-solid fa-chart-column text-indigo-600 ml-2"></i> تحلیل دشواری سوالات (درصد پاسخ صحیح کلاس به تفکیک سوال)
+                </h3>
+                <p class="text-xs text-slate-500 mb-6">این نمودار نشان می‌دهد که چند درصد از کل شرکت‌کنندگان توانسته‌اند به هر سوال پاسخ درست بدهند.</p>
+
+                <div id="question-difficulty-bars" class="space-y-3">
+                    <!-- Dynamic Bars rendered by JS -->
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Modal for Detailed Student Submission View (Admin) -->
+    <div id="student-detail-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden">
+            <div class="p-5 bg-slate-900 text-white flex items-center justify-between">
+                <div>
+                    <h3 id="modal-student-title" class="font-bold text-base">جزئیات پاسخ‌نامه دانشجو</h3>
+                    <p id="modal-student-sub" class="text-xs text-slate-400">شماره دانشجویی: -</p>
+                </div>
+                <button onclick="closeStudentModal()" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div id="modal-student-body" class="p-6 overflow-y-auto custom-scrollbar space-y-4 flex-grow">
+                <!-- Content generated via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500 mt-8">
+        <div class="max-w-7xl mx-auto px-4">
+            طراحی و توسعه بر اساس استاندارد تکسونومی بلوم و اصول اندازه‌گیری روان‌سنجی آموزشی © ۱۴۰۳-۱۴۰۴
+        </div>
+    </footer>
+
+
+    <!-- Firebase Module Integration -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global dataset for the 10 scenario-based assessment questions
+        window.EXAM_QUESTIONS = [
+            {
+                id: 1,
+                bloom: "تحلیل",
+                question: "مدیر یک مدرسه برای انتخاب نماینده دانش‌آموزان در شورای دانش‌آموزی، از دانش‌آموزان هر کلاس می‌خواهد که بر اساس تجربیات یک سال گذشته، سه نفر از شایسته‌ترین هم‌کلاسی‌های خود را نام ببرند. این شیوه سنجش شخصیت در کدام دسته از ابزارها قرار می‌گیرد؟",
+                options: [
+                    "۱. پرسشنامه ساخت‌یافته گزارش شخصی",
+                    "۲. ابزار سنجش ناخودآگاه فرافکن",
+                    "۳. پرسشنامه ارزیابی جامعه‌سنجی",
+                    "۴. فن مشاهده مستقیم در موقعیت طبیعی"
+                ],
+                correctAnswer: 2,
+                analysis: "جامعه‌سنجی شامل گزارش افراد دیگر در مورد فرد مورد سنجش است."
+            },
+            {
+                id: 2,
+                bloom: "ارزیابی",
+                question: "یک مرکز مشاوره شغلی برای هدایت یک مراجع ۲۵ ساله، پرسشنامه‌ای شامل گزاره‌هایی درباره نهادهای حکومتی، اقوام مختلف و سازمان‌های غیردولتی اجرا می‌کند. ارزیابی شما از این اقدام چیست؟",
+                options: [
+                    "۱. کاملاً نادرست است؛ زیرا این ابزار نگرش‌سنج است و برای هدایت شغلی باید از پرسشنامه علاقه استفاده شود.",
+                    "۲. کاملاً درست است؛ زیرا نگرش فرد به اشیاء و نهادها همان تمایل او به فعالیت‌های شغلی گوناگون است.",
+                    "۳. کاملاً نادرست است؛ زیرا پرسشنامه‌های نگرش‌سنج فقط در تشخیص اختلالات بالینی روانپزشکی کاربرد دارند.",
+                    "۴. کاملاً درست است؛ زیرا نگرش و علاقه دو نام متضاد برای سنجش یک صفت شخصیتی واحد هستند."
+                ],
+                correctAnswer: 0,
+                analysis: "علاقه معطوف به فعالیت است و در مشاوره شغلی کاربرد دارد، اما نگرش معطوف به نهادها و اشیاء است."
+            },
+            {
+                id: 3,
+                bloom: "تحلیل",
+                question: "در پیوستار آزمون‌های توانایی (رینالدز و لیوینگستون)، اگر آزمونی از سنجش استدلال غیرکلامی بر پایه کامل‌کردن تصاویر ناقص استفاده کند و حداقل وابستگی را به زبان داشته باشد، در کدام موقعیت پیوستار قرار دارد؟",
+                options: [
+                    "۱. کرانه وابسته به آموزش‌های ویژه کلاسی",
+                    "۲. نقطه میانی آزمون‌های پیشرفت تحصیلی",
+                    "۳. نقطه میانی آزمون‌های هوش و استعداد کلامی",
+                    "۴. کرانه مستقل از تجارب تحصیلی و فرهنگ"
+                ],
+                correctAnswer: 3,
+                analysis: "آزمون‌های بر پایه استدلال غیرکلامی کمترین وابستگی را به فرهنگ و تجارب آموزشگاهی دارند."
+            },
+            {
+                id: 4,
+                bloom: "درک و فهم",
+                question: "تفاوت بنیادین در نمره‌دهی و سنجش آزمون‌های «عملکرد بیشینه» در مقایسه با «عملکرد نوعی» چیست؟",
+                options: [
+                    "۱. در عملکرد بیشینه هدف ثبت بهترین توانایی است، ولی در عملکرد نوعی وضع موجود در شرایط طبیعی سنجیده می‌شود.",
+                    "۲. در عملکرد بیشینه رفتار فرد در موقعیت طبیعی ارزیابی می‌شود، اما عملکرد نوعی نیاز به حداکثر تلاش دارد.",
+                    "۳. در عملکرد بیشینه فقط نگرش سنجیده می‌شود، ولی در عملکرد نوعی مهارت‌های روانی - حرکتی ارزیابی می‌گردد.",
+                    "۴. در عملکرد بیشینه ملاک نمره‌دهی مطلق است، اما در عملکرد نوعی ملاک نمره‌دهی همیشه هنجاری و نسبی است."
+                ],
+                correctAnswer: 0,
+                analysis: "عملکرد بیشینه توانایی با حداکثر تلاش است و عملکرد نوعی رفتار طبیعی در زندگی است."
+            },
+            {
+                id: 5,
+                bloom: "کاربرد",
+                question: "سازمان سنجش برای انتخاب داوطلبان ورود به رشته آهنگ‌سازی، آزمونی طراحی کرده تا میزان درک ریتم و تن صدا را بسنجد. این ابزار در کدام طبقه از آزمون‌ها قرار دارد؟",
+                options: [
+                    "۱. آزمون پیشرفت تحصیلی معلم‌ساخته",
+                    "۲. آزمون استعداد ویژه ناظر به آینده",
+                    "۳. پرسشنامه سنجش عملکرد نوعی عاطفی",
+                    "۴. آزمون سنجش هوش کلی و عمومی"
+                ],
+                correctAnswer: 1,
+                analysis: "سنجش ظرفیت اختصاصی برای پیش‌بینی موفقیت آتی، کاربرد آزمون استعداد ویژه است."
+            },
+            {
+                id: 6,
+                bloom: "تحلیل",
+                question: "بر اساس دیدگاه ثرندایک و هیگن، وجه تمایز اصلی بین دو آزمون که سوالات مشابهی درباره محاسبات ریاضی دارند اما یکی «استعداد ریاضی» و دیگری «پیشرفت ریاضی» نامیده شده، چیست؟",
+                options: [
+                    "۱. ساختار ذاتی و ماهیت فنی سوالات آزمون",
+                    "۲. میزان سنجش توانایی ارثی و ذاتی فرد",
+                    "۳. قصد و منظوری که نتایج برای آن استفاده می‌شوند",
+                    "۴. کلامی یا غیرکلامی بودن شریحه سوالات آزمون"
+                ],
+                correctAnswer: 2,
+                analysis: "تمایز آزمون استعداد و پیشرفت تحصیلی وابسته به هدف و منظور استفاده از نتایج است."
+            },
+            {
+                id: 7,
+                bloom: "ارزیابی",
+                question: "هیئت امنای یک منطقه آموزشی می‌خواهد مؤثرترین برنامه درسی ریاضی را از میان سه برنامه پیشنهادی انتخاب کند. استفاده از کدام ابزار ارزیابی علمی‌تر است؟",
+                options: [
+                    "۱. آزمون کلاسی معلم‌ساخته به دلیل تطبیق کامل با تدریس معلم",
+                    "۲. آزمون میزان‌شده به دلیل نیاز به مقایسه گسترده و هنجاری",
+                    "۳. پرسشنامه گزارش شخصی به دلیل ارزیابی عملکرد نوعی فراگیران",
+                    "۴. آزمون ساختن‌پاسخ تشریحی به دلیل سنجش عینی و سریع دانش"
+                ],
+                correctAnswer: 1,
+                analysis: "ارزیابی و انتخاب برنامه درسی نیازمند آزمون میزان‌شده با مقایسه گسترده است."
+            },
+            {
+                id: 8,
+                bloom: "درک و فهم",
+                question: "علت اصلی اینکه آزمون‌های بسته پاسخ (مانند چندگزینه‌ای) را آزمون‌های «عینی» می‌نامند چیست؟",
+                options: [
+                    "۱. عدم دخالت نظر شخصی مصحح در تصحیح پاسخ‌ها",
+                    "۲. سنجش سطوح بسیار بالای تفکر مانند خلق و نقد",
+                    "۳. ساخت آسان و سریع سوالات توسط معلمان مبتدی",
+                    "۴. الزامی بودن استفاده از هنجارهای ملی در نمره‌دهی"
+                ],
+                correctAnswer: 0,
+                analysis: "علت عینی نامیدن آزمون‌های بسته پاسخ، عدم دخالت سلیقه مصحح در نمره‌گذاری است."
+            },
+            {
+                id: 9,
+                bloom: "کاربرد",
+                question: "معلّمی برای ارزیابی توانایی دانش‌آموزان در انتقال یادگیری به دنیای واقعی، از آن‌ها می‌خواهد برای روزنامه مدرسه یک مقاله تحلیلی بنویسند. این روش مصداق کدام نوع سنجش است؟",
+                options: [
+                    "۱. سنجش هنجارمرجع میزان‌شده استاندارد",
+                    "۲. سنجش عملکرد نوعی فرافکن ساخت‌یافته",
+                    "۳. سنجش واقعی یا اصیل (Authentic)",
+                    "۴. سنجش پاسخ‌گزین با ملاک‌های نسبی"
+                ],
+                correctAnswer: 2,
+                analysis: "سنجش واقعی شامل تکالیف با معنایی مانند نگارش مقاله برای روزنامه مدرسه است."
+            },
+            {
+                id: 10,
+                bloom: "تحلیل",
+                question: "اگر در یک آزمون هوشی، تصاویر لکه‌های جوهر مبهم به آزمون‌شونده ارائه شود تا آن‌ها را تعبیر کند، این ابزار بر اساس ساختار محرک در کدام طبقه قرار می‌گیرد؟",
+                options: [
+                    "۱. محرک‌های سازمان‌یافته با تعبیر یکسان",
+                    "۲. محرک‌های سازمان‌نیافته و فرافکن",
+                    "۳. آزمون‌های توانایی شناختی کلامی",
+                    "۴. پرسشنامه‌های جامعه‌سنجی ساخت‌یافته"
+                ],
+                correctAnswer: 1,
+                analysis: "ابزارهای فرافکن از محرک‌های سازمان‌نیافته جهت تعبیر توسط فرد استفاده می‌کنند."
+            }
+        ];
+
+        // Firebase Setup
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'azmoon-sanjesh-app';
+        let firebaseApp, db, auth;
+        let submissionsList = [];
+
+        async function initFirebase() {
+            try {
+                if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                    const firebaseConfig = JSON.parse(__firebase_config);
+                    firebaseApp = initializeApp(firebaseConfig);
+                    db = getFirestore(firebaseApp);
+                    auth = getAuth(firebaseApp);
+
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                    listenToSubmissions();
+                } else {
+                    updateUIWithSubmissions([]);
+                }
+            } catch (err) {
+                console.error("Firebase init error:", err);
+                updateUIWithSubmissions([]);
+            }
+        }
+
+        function listenToSubmissions() {
+            if (!db) return;
+            const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'submissions');
+            
+            onSnapshot(colRef, (snapshot) => {
+                submissionsList = [];
+                snapshot.forEach((doc) => {
+                    submissionsList.push({ id: doc.id, ...doc.data() });
+                });
+                submissionsList.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+                updateUIWithSubmissions(submissionsList);
+            }, (error) => {
+                console.error("Firestore snapshot error:", error);
+            });
+        }
+
+        window.saveSubmissionToFirestore = async function(submissionData) {
+            if (!db) {
+                submissionsList.unshift({ id: 'local-' + Date.now(), ...submissionData });
+                updateUIWithSubmissions(submissionsList);
+                return;
+            }
+            try {
+                const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'submissions');
+                await addDoc(colRef, submissionData);
+            } catch (error) {
+                console.error("Error saving submission:", error);
+                submissionsList.unshift({ id: 'local-' + Date.now(), ...submissionData });
+                updateUIWithSubmissions(submissionsList);
+            }
+        }
+
+        window.refreshDataFromFirestore = function() {
+            if (db) {
+                listenToSubmissions();
+            } else {
+                updateUIWithSubmissions(submissionsList);
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initFirebase();
+        });
+    </script>
+
+    <!-- App Logic Script -->
+    <script>
+        let currentQuestionIndex = 0;
+        let studentAnswers = {};
+        let currentStudentInfo = { name: '', id: '' };
+        let timerInterval = null;
+        let secondsElapsed = 0;
+
+        function switchTab(tab) {
+            const studentView = document.getElementById('student-view');
+            const teacherView = document.getElementById('teacher-view');
+            const studentBtn = document.getElementById('tab-student-btn');
+            const teacherBtn = document.getElementById('tab-teacher-btn');
+
+            if (tab === 'student') {
+                studentView.classList.remove('hidden');
+                teacherView.classList.add('hidden');
+                studentBtn.className = "px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 bg-brand-600 text-white shadow";
+                teacherBtn.className = "px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 text-slate-300 hover:text-white hover:bg-slate-700/60";
+            } else {
+                studentView.classList.add('hidden');
+                teacherView.classList.remove('hidden');
+                teacherBtn.className = "px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 bg-brand-600 text-white shadow";
+                studentBtn.className = "px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 text-slate-300 hover:text-white hover:bg-slate-700/60";
+                if (window.refreshDataFromFirestore) window.refreshDataFromFirestore();
+            }
+        }
+
+        function startExam(e) {
+            e.preventDefault();
+            const nameInput = document.getElementById('student-name').value.trim();
+            const idInput = document.getElementById('student-id').value.trim();
+
+            if (!nameInput || !idInput) return;
+
+            currentStudentInfo = { name: nameInput, id: idInput };
+            document.getElementById('display-student-name').innerText = nameInput;
+
+            document.getElementById('student-login-card').classList.add('hidden');
+            document.getElementById('exam-card').classList.remove('hidden');
+
+            currentQuestionIndex = 0;
+            studentAnswers = {};
+            secondsElapsed = 0;
+            startTimer();
+
+            renderQuestion();
+            renderQuestionPills();
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                secondsElapsed++;
+                const mins = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
+                const secs = String(secondsElapsed % 60).padStart(2, '0');
+                document.getElementById('exam-timer').innerText = `${mins}:${secs}`;
+            }, 1000);
+        }
+
+        function renderQuestion() {
+            const q = window.EXAM_QUESTIONS[currentQuestionIndex];
+            if (!q) return;
+
+            document.getElementById('question-badge-counter').innerText = `سوال ${currentQuestionIndex + 1} از ۱۰`;
+            document.getElementById('bloom-level-tag').innerText = `سطح بلوم: ${q.bloom}`;
+            
+            const percent = ((currentQuestionIndex + 1) / 10) * 100;
+            document.getElementById('progress-bar').style.width = `${percent}%`;
+
+            document.getElementById('question-text').innerText = q.question;
+
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+
+            q.options.forEach((optText, optIdx) => {
+                const isSelected = studentAnswers[q.id] === optIdx;
+                const optBtn = document.createElement('button');
+                optBtn.type = 'button';
+                optBtn.onclick = () => selectAnswer(q.id, optIdx);
+
+                optBtn.className = `w-full text-right p-4 rounded-xl border-2 transition-all duration-200 flex items-start space-x-3 space-x-reverse ${
+                    isSelected 
+                        ? 'border-brand-600 bg-brand-50/80 text-brand-900 shadow-sm font-semibold' 
+                        : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700'
+                }`;
+
+                optBtn.innerHTML = `
+                    <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 ${
+                        isSelected ? 'border-brand-600 bg-brand-600 text-white' : 'border-slate-300 text-transparent'
+                    }">
+                        <i class="fa-solid fa-check text-xs"></i>
+                    </div>
+                    <span class="text-sm leading-relaxed">${optText}</span>
+                `;
+                optionsContainer.appendChild(optBtn);
+            });
+
+            const nextBtn = document.getElementById('next-q-btn');
+            const submitBtn = document.getElementById('submit-exam-btn');
+
+            if (currentQuestionIndex === window.EXAM_QUESTIONS.length - 1) {
+                nextBtn.classList.add('hidden');
+                submitBtn.classList.remove('hidden');
+            } else {
+                nextBtn.classList.remove('hidden');
+                submitBtn.classList.add('hidden');
+            }
+
+            renderQuestionPills();
+        }
+
+        function selectAnswer(qId, optionIdx) {
+            studentAnswers[qId] = optionIdx;
+            renderQuestion();
+        }
+
+        function navigateQuestion(step) {
+            if (step > 0 && currentQuestionIndex < window.EXAM_QUESTIONS.length - 1) {
+                currentQuestionIndex++;
+                renderQuestion();
+            }
+        }
+
+        function renderQuestionPills() {
+            const container = document.getElementById('question-pills-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            window.EXAM_QUESTIONS.forEach((q, idx) => {
+                const isAnswered = studentAnswers[q.id] !== undefined;
+                const isCurrent = idx === currentQuestionIndex;
+
+                const pill = document.createElement('div');
+
+                let badgeStyle = "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed";
+                if (isCurrent) {
+                    badgeStyle = "bg-brand-600 text-white border-brand-700 ring-2 ring-brand-400 font-bold";
+                } else if (isAnswered) {
+                    badgeStyle = "bg-slate-200 text-slate-600 border-slate-300 font-medium";
+                }
+
+                pill.className = `w-9 h-9 rounded-lg text-xs border flex items-center justify-center transition-all ${badgeStyle}`;
+                pill.innerText = idx + 1;
+                container.appendChild(pill);
+            });
+        }
+
+        function confirmExamSubmission() {
+            const answeredCount = Object.keys(studentAnswers).length;
+            if (answeredCount < 10) {
+                const unanswered = 10 - answeredCount;
+                if (!confirm(`شما به ${unanswered} سوال پاسخ نداده‌اید. آیا از ثبت نهایی اطمینان دارید؟`)) {
+                    return;
+                }
+            } else {
+                if (!confirm("آیا از ارسال نهایی پاسخ‌نامه مطمئن هستید؟")) {
+                    return;
+                }
+            }
+
+            clearInterval(timerInterval);
+            processExamSubmission();
+        }
+
+        function processExamSubmission() {
+            let correctCount = 0;
+            const detailedAnswers = {};
+
+            window.EXAM_QUESTIONS.forEach(q => {
+                const selected = studentAnswers[q.id];
+                const isCorrect = selected === q.correctAnswer;
+                if (isCorrect) correctCount++;
+
+                detailedAnswers[q.id] = {
+                    selectedOption: selected !== undefined ? selected : -1,
+                    isCorrect: isCorrect,
+                    correctOption: q.correctAnswer
+                };
+            });
+
+            const totalScore = Math.round((correctCount / 10) * 100);
+            const timeFormatted = document.getElementById('exam-timer').innerText;
+
+            const submissionPayload = {
+                studentName: currentStudentInfo.name,
+                studentId: currentStudentInfo.id,
+                scorePercent: totalScore,
+                correctCount: correctCount,
+                timeSpent: timeFormatted,
+                createdAt: new Date().toISOString(),
+                answers: detailedAnswers
+            };
+
+            // Save to Firestore
+            if (window.saveSubmissionToFirestore) {
+                window.saveSubmissionToFirestore(submissionPayload);
+            }
+
+            // Display Result Screen
+            document.getElementById('exam-card').classList.add('hidden');
+            document.getElementById('result-card').classList.remove('hidden');
+
+            document.getElementById('score-percentage').innerText = `${totalScore}%`;
+            document.getElementById('score-correct-count').innerText = `${correctCount} / 10`;
+            document.getElementById('score-wrong-count').innerText = 10 - correctCount;
+            document.getElementById('score-total-time').innerText = timeFormatted;
+        }
+
+        function resetAppToHome() {
+            document.getElementById('result-card').classList.add('hidden');
+            document.getElementById('student-login-card').classList.remove('hidden');
+            document.getElementById('student-info-form').reset();
+            studentAnswers = {};
+            currentQuestionIndex = 0;
+            secondsElapsed = 0;
+        }
+
+        function updateUIWithSubmissions(list) {
+            const tableBody = document.getElementById('submissions-table-body');
+            const totalCountEl = document.getElementById('stat-total-students');
+            const avgScoreEl = document.getElementById('stat-avg-score');
+            const highestScoreEl = document.getElementById('stat-highest-score');
+            const hardestQEl = document.getElementById('stat-hardest-q');
+
+            if (!list || list.length === 0) {
+                totalCountEl.innerText = "0 نفر";
+                avgScoreEl.innerText = "0%";
+                highestScoreEl.innerText = "0%";
+                hardestQEl.innerText = "سوال -";
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="p-8 text-center text-slate-400">
+                            <i class="fa-solid fa-inbox text-3xl mb-2 block"></i>
+                            هنوز پاسخی ثبت نشده است. دانش‌آموزان با انجام آزمون، نتایج خود را به‌صورت زنده به این بخش ارسال خواهند کرد.
+                        </td>
+                    </tr>
+                `;
+                renderDifficultyBars({}, 0);
+                return;
+            }
+
+            const totalStudents = list.length;
+            let sumScore = 0;
+            let maxScore = 0;
+            const qCorrectCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0 };
+
+            list.forEach(sub => {
+                sumScore += sub.scorePercent || 0;
+                if ((sub.scorePercent || 0) > maxScore) maxScore = sub.scorePercent;
+
+                if (sub.answers) {
+                    Object.keys(sub.answers).forEach(qId => {
+                        if (sub.answers[qId].isCorrect) {
+                            qCorrectCounts[qId] = (qCorrectCounts[qId] || 0) + 1;
+                        }
+                    });
+                }
+            });
+
+            const avgScore = Math.round(sumScore / totalStudents);
+
+            let minCorrect = totalStudents + 1;
+            let hardestQId = 1;
+            Object.keys(qCorrectCounts).forEach(qId => {
+                if (qCorrectCounts[qId] < minCorrect) {
+                    minCorrect = qCorrectCounts[qId];
+                    hardestQId = qId;
+                }
+            });
+
+            totalCountEl.innerText = `${totalStudents} نفر`;
+            avgScoreEl.innerText = `${avgScore}%`;
+            highestScoreEl.innerText = `${maxScore}%`;
+            hardestQEl.innerText = `سوال ${hardestQId} (${Math.round((qCorrectCounts[hardestQId]/totalStudents)*100)}% صحیح)`;
+
+            tableBody.innerHTML = '';
+            list.forEach((sub, index) => {
+                const dateStr = sub.createdAt ? new Date(sub.createdAt).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' }) + ' - ' + new Date(sub.createdAt).toLocaleDateString('fa-IR') : 'امروز';
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+                tr.innerHTML = `
+                    <td class="p-4 font-bold text-slate-400">${index + 1}</td>
+                    <td class="p-4 font-bold text-slate-900">${sub.studentName || 'نامشخص'}</td>
+                    <td class="p-4 font-mono text-slate-600">${sub.studentId || '-'}</td>
+                    <td class="p-4">
+                        <span class="px-2.5 py-1 rounded-md text-xs font-black ${sub.scorePercent >= 70 ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                            ${sub.scorePercent}%
+                        </span>
+                    </td>
+                    <td class="p-4 font-bold text-emerald-600">${sub.correctCount} / 10</td>
+                    <td class="p-4 font-mono dir-ltr text-slate-600">${sub.timeSpent || '-'}</td>
+                    <td class="p-4 text-xs text-slate-500">${dateStr}</td>
+                    <td class="p-4 text-center">
+                        <button onclick="openStudentModal('${sub.id}')" class="px-3 py-1.5 rounded-lg bg-brand-50 hover:bg-brand-100 text-brand-700 text-xs font-bold transition">
+                            مشاهده برگه
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+
+            renderDifficultyBars(qCorrectCounts, totalStudents);
+        }
+
+        function renderDifficultyBars(qCorrectCounts, totalStudents) {
+            const container = document.getElementById('question-difficulty-bars');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (!totalStudents) {
+                container.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">داده‌ای برای تحلیل وجود ندارد.</p>`;
+                return;
+            }
+
+            window.EXAM_QUESTIONS.forEach(q => {
+                const correct = qCorrectCounts[q.id] || 0;
+                const percent = Math.round((correct / totalStudents) * 100);
+
+                const item = document.createElement('div');
+                item.className = "space-y-1";
+                item.innerHTML = `
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="font-bold text-slate-700">سوال ${q.id} (${q.bloom}): <span class="font-normal text-slate-500">${q.question.substring(0, 70)}...</span></span>
+                        <span class="font-bold text-slate-800">${percent}% (${correct} از ${totalStudents} نفر)</span>
+                    </div>
+                    <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                        <div class="h-2.5 rounded-full transition-all duration-500 ${percent >= 70 ? 'bg-emerald-500' : percent >= 40 ? 'bg-amber-500' : 'bg-rose-500'}" style="width: ${percent}%;"></div>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function openStudentModal(subId) {
+            const sub = (window.submissionsList || []).find(s => s.id === subId);
+            if (!sub) return;
+
+            document.getElementById('modal-student-title').innerText = `پاسخ‌نامه دانشجو: ${sub.studentName}`;
+            document.getElementById('modal-student-sub').innerText = `شماره دانشجویی: ${sub.studentId} | نمره کل: ${sub.scorePercent}% (${sub.correctCount} از ۱۰ صحیح)`;
+
+            const body = document.getElementById('modal-student-body');
+            body.innerHTML = '';
+
+            window.EXAM_QUESTIONS.forEach((q, idx) => {
+                const userAns = sub.answers ? sub.answers[q.id] : null;
+                const isCorrect = userAns ? userAns.isCorrect : false;
+                const selectedOpt = userAns && userAns.selectedOption >= 0 ? q.options[userAns.selectedOption] : 'پاسخ داده نشده';
+
+                const div = document.createElement('div');
+                div.className = `p-4 rounded-xl border text-xs ${isCorrect ? 'bg-emerald-50 border-emerald-200' : 'bg-rose-50 border-rose-200'} space-y-2`;
+                div.innerHTML = `
+                    <div class="flex items-center justify-between font-bold">
+                        <span>سوال ${idx + 1}: ${q.question}</span>
+                        <span class="${isCorrect ? 'text-emerald-700' : 'text-rose-700'}">${isCorrect ? 'صحیح ✓' : 'نادرست ✗'}</span>
+                    </div>
+                    <div><span class="font-bold">گزینه انتخابی دانشجو:</span> ${selectedOpt}</div>
+                    <div class="text-slate-600"><span class="font-bold">گزینه صحیح:</span> ${q.options[q.correctAnswer]}</div>
+                `;
+                body.appendChild(div);
+            });
+
+            document.getElementById('student-detail-modal').classList.remove('hidden');
+        }
+
+        function closeStudentModal() {
+            document.getElementById('student-detail-modal').classList.add('hidden');
+        }
+
+        function exportResultsCSV() {
+            const list = window.submissionsList || [];
+            if (list.length === 0) {
+                alert("هیچ داده‌ای برای خروجی گرفتن وجود ندارد.");
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+            csvContent += "نام دانشجو,شماره دانشجویی,نمره درصد,تعداد پاسخ درست,زمان سپری شده,تاریخ ثبت\n";
+
+            list.forEach(row => {
+                csvContent += `"${row.studentName || ''}","${row.studentId || ''}",${row.scorePercent || 0},${row.correctCount || 0},"${row.timeSpent || ''}","${row.createdAt || ''}"\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `نتایج_آزمون_سنجش_${new Date().toLocaleDateString('fa-IR')}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Attach functions to window scope
+        window.switchTab = switchTab;
+        window.startExam = startExam;
+        window.navigateQuestion = navigateQuestion;
+        window.confirmExamSubmission = confirmExamSubmission;
+        window.resetAppToHome = resetAppToHome;
+        window.openStudentModal = openStudentModal;
+        window.closeStudentModal = closeStudentModal;
+        window.exportResultsCSV = exportResultsCSV;
+    </script>
+</body>
+</html>
