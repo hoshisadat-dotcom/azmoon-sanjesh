@@ -121,7 +121,8 @@
                         <div class="text-xs text-amber-900 leading-relaxed">
                             <p class="font-bold mb-1">راهنمای شرکت در آزمون:</p>
                             <ul class="list-disc list-inside space-y-1 text-amber-800">
-                                <li>امکان بازگشت به سوالات قبلی وجود ندارد. پس از عبور از هر سوال، دکمه بازگشت فعال نخواهد بود.</li>
+                                <li>برای پاسخ‌گویی به هر سوال تنها <strong>۴۵ ثانیه</strong> زمان دارید. با اتمام زمان، سوال به‌طور خودکار ثبت شده و به سوال بعد می‌روید.</li>
+                                <li>امکان بازگشت به سوالات قبلی وجود ندارد.</li>
                                 <li>در پایان آزمون، تنها نمره کلی به شما نمایش داده می‌شود.</li>
                             </ul>
                         </div>
@@ -148,9 +149,9 @@
                     </div>
 
                     <div class="flex items-center space-x-4 space-x-reverse text-xs sm:text-sm text-slate-300">
-                        <div class="flex items-center">
-                            <i class="fa-regular fa-clock ml-1.5 text-brand-400"></i>
-                            <span>زمان سپری‌شده: <strong id="exam-timer" class="text-white font-mono dir-ltr inline-block">00:00</strong></span>
+                        <div class="flex items-center bg-rose-500/20 border border-rose-500/40 px-3 py-1.5 rounded-xl text-rose-300 font-bold">
+                            <i class="fa-regular fa-clock ml-1.5 text-rose-400 animate-pulse"></i>
+                            <span>زمان سوال: <strong id="question-timer-display" class="text-white font-mono dir-ltr inline-block text-base mr-1">45</strong> ثانیه</span>
                         </div>
                         <div class="h-4 w-px bg-slate-700"></div>
                         <div class="flex items-center">
@@ -160,9 +161,9 @@
                     </div>
                 </div>
 
-                <!-- Progress Bar -->
-                <div class="w-full bg-slate-100 h-2">
-                    <div id="progress-bar" class="bg-gradient-to-r from-brand-500 to-indigo-600 h-2 transition-all duration-300" style="width: 10%;"></div>
+                <!-- Question Timer Progress Bar -->
+                <div class="w-full bg-slate-800 h-2">
+                    <div id="question-timer-bar" class="bg-gradient-to-r from-rose-500 via-amber-400 to-emerald-400 h-2 transition-all duration-1000 ease-linear" style="width: 100%;"></div>
                 </div>
 
                 <!-- Question & Options Container -->
@@ -266,6 +267,28 @@
                         </button>
                         <button onclick="refreshDataFromFirestore()" class="px-4 py-2.5 rounded-xl bg-brand-50 hover:bg-brand-100 text-brand-700 text-xs font-bold flex items-center transition border border-brand-200">
                             <i class="fa-solid fa-arrows-rotate ml-1.5"></i> بروزرسانی
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Exam Settings Section for Teacher -->
+                <div class="mt-6 p-4 bg-slate-900 text-white rounded-xl border border-slate-800 flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex items-center space-x-3 space-x-reverse">
+                        <div class="w-10 h-10 rounded-lg bg-brand-600 flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-stopwatch text-white"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-sm">تنظیم زمان پاسخ‌گویی به هر سوال</h4>
+                            <p class="text-xs text-slate-400">زمان مجاز اختصاص داده شده به هر سوال را تعیین کنید (بر حسب ثانیه)</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3 space-x-reverse">
+                        <div class="relative w-32">
+                            <input type="number" id="setting-question-time" min="10" max="600" value="45" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3 text-white text-center text-sm font-mono font-bold focus:ring-2 focus:ring-brand-500 outline-none">
+                            <span class="absolute left-2 top-2 text-xs text-slate-400 pointer-events-none">ثانیه</span>
+                        </div>
+                        <button onclick="saveExamSettings()" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition flex items-center">
+                            <i class="fa-solid fa-floppy-disk ml-1.5"></i> ذخیره زمان
                         </button>
                     </div>
                 </div>
@@ -377,6 +400,31 @@
         </div>
     </div>
 
+    <!-- Modal for Teacher Auth Password -->
+    <div id="teacher-auth-modal" class="hidden fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 space-y-5 text-center">
+            <div class="w-14 h-14 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center mx-auto text-2xl shadow-inner">
+                <i class="fa-solid fa-user-shield"></i>
+            </div>
+            <div>
+                <h3 class="font-extrabold text-slate-900 text-lg">ورود به پنل استاد</h3>
+                <p class="text-xs text-slate-500 mt-1">جهت مشاهده نتایج و گزارش‌ها، رمز عبور را وارد کنید.</p>
+            </div>
+            <div>
+                <input type="password" id="teacher-password-input" placeholder="رمز عبور استاد (پیش‌فرض: 1403)" class="w-full text-center px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm outline-none font-bold">
+                <p id="teacher-auth-error" class="text-xs text-rose-600 font-bold mt-2 hidden">رمز عبور اشتباه است!</p>
+            </div>
+            <div class="flex items-center space-x-2 space-x-reverse">
+                <button onclick="verifyTeacherPassword()" class="flex-1 bg-brand-600 hover:bg-brand-700 text-white font-bold py-2.5 rounded-xl text-xs sm:text-sm transition">
+                    تایید و ورود
+                </button>
+                <button onclick="closeTeacherAuthModal()" class="px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-xs transition">
+                    انصراف
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500 mt-8">
         <div class="max-w-7xl mx-auto px-4">
@@ -389,7 +437,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, addDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Global dataset for the 10 scenario-based assessment questions
         window.EXAM_QUESTIONS = [
@@ -525,10 +573,13 @@
             }
         ];
 
+        // Global configurable per-question time limit in seconds
+        window.questionTimeLimit = 45;
+
         // Firebase Setup
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'azmoon-sanjesh-app';
         let firebaseApp, db, auth;
-        let submissionsList = [];
+        window.submissionsList = [];
 
         async function initFirebase() {
             try {
@@ -544,26 +595,73 @@
                         await signInAnonymously(auth);
                     }
                     listenToSubmissions();
+                    listenToSettings();
                 } else {
-                    updateUIWithSubmissions([]);
+                    if (window.updateUIWithSubmissions) {
+                        window.updateUIWithSubmissions([]);
+                    }
                 }
             } catch (err) {
                 console.error("Firebase init error:", err);
-                updateUIWithSubmissions([]);
+                if (window.updateUIWithSubmissions) {
+                    window.updateUIWithSubmissions([]);
+                }
             }
         }
+
+        function listenToSettings() {
+            if (!db) return;
+            const settingsDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config');
+            onSnapshot(settingsDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    if (data && data.questionTimeLimit) {
+                        window.questionTimeLimit = Number(data.questionTimeLimit);
+                        const inputEl = document.getElementById('setting-question-time');
+                        if (inputEl) inputEl.value = window.questionTimeLimit;
+                    }
+                }
+            }, (error) => {
+                console.error("Firestore settings snapshot error:", error);
+            });
+        }
+
+        window.saveExamSettings = async function() {
+            const timeVal = parseInt(document.getElementById('setting-question-time').value, 10);
+            if (isNaN(timeVal) || timeVal < 10 || timeVal > 600) {
+                alert("لطفاً زمان معتبری بین ۱۰ تا ۶۰۰ ثانیه وارد کنید.");
+                return;
+            }
+
+            window.questionTimeLimit = timeVal;
+
+            if (db) {
+                try {
+                    const settingsDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config');
+                    await setDoc(settingsDocRef, { questionTimeLimit: timeVal }, { merge: true });
+                    alert(`زمان هر سوال با موفقیت روی ${timeVal} ثانیه تنظیم و ذخیره شد.`);
+                } catch (e) {
+                    console.error("Error saving settings to Firestore:", e);
+                    alert(`زمان روی ${timeVal} ثانیه تنظیم شد (ذخیره محلی).`);
+                }
+            } else {
+                alert(`زمان روی ${timeVal} ثانیه تنظیم شد.`);
+            }
+        };
 
         function listenToSubmissions() {
             if (!db) return;
             const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'submissions');
             
             onSnapshot(colRef, (snapshot) => {
-                submissionsList = [];
+                window.submissionsList = [];
                 snapshot.forEach((doc) => {
-                    submissionsList.push({ id: doc.id, ...doc.data() });
+                    window.submissionsList.push({ id: doc.id, ...doc.data() });
                 });
-                submissionsList.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-                updateUIWithSubmissions(submissionsList);
+                window.submissionsList.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+                if (window.updateUIWithSubmissions) {
+                    window.updateUIWithSubmissions(window.submissionsList);
+                }
             }, (error) => {
                 console.error("Firestore snapshot error:", error);
             });
@@ -571,8 +669,10 @@
 
         window.saveSubmissionToFirestore = async function(submissionData) {
             if (!db) {
-                submissionsList.unshift({ id: 'local-' + Date.now(), ...submissionData });
-                updateUIWithSubmissions(submissionsList);
+                window.submissionsList.unshift({ id: 'local-' + Date.now(), ...submissionData });
+                if (window.updateUIWithSubmissions) {
+                    window.updateUIWithSubmissions(window.submissionsList);
+                }
                 return;
             }
             try {
@@ -580,16 +680,21 @@
                 await addDoc(colRef, submissionData);
             } catch (error) {
                 console.error("Error saving submission:", error);
-                submissionsList.unshift({ id: 'local-' + Date.now(), ...submissionData });
-                updateUIWithSubmissions(submissionsList);
+                window.submissionsList.unshift({ id: 'local-' + Date.now(), ...submissionData });
+                if (window.updateUIWithSubmissions) {
+                    window.updateUIWithSubmissions(window.submissionsList);
+                }
             }
         }
 
         window.refreshDataFromFirestore = function() {
             if (db) {
                 listenToSubmissions();
+                listenToSettings();
             } else {
-                updateUIWithSubmissions(submissionsList);
+                if (window.updateUIWithSubmissions) {
+                    window.updateUIWithSubmissions(window.submissionsList);
+                }
             }
         }
 
@@ -598,13 +703,246 @@
         });
     </script>
 
-    <!-- App Logic Script -->
+    <!-- Main App & Teacher Analytics Script -->
     <script>
         let currentQuestionIndex = 0;
         let studentAnswers = {};
         let currentStudentInfo = { name: '', id: '' };
-        let timerInterval = null;
-        let secondsElapsed = 0;
+        
+        let questionTimerInterval = null;
+        let questionSecondsLeft = 45;
+        let totalTimeSeconds = 0;
+        let totalExamTimerInterval = null;
+
+        let isTeacherAuthenticated = false;
+        const TEACHER_PASSWORD = "1403";
+
+        function escapeHtml(str) {
+            return String(str || '')
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Main UI Update Function for Teacher Panel Submissions & Analytics
+        function updateUIWithSubmissions(submissions) {
+            const list = submissions || [];
+            const totalStudents = list.length;
+            
+            const statTotalEl = document.getElementById('stat-total-students');
+            const statAvgEl = document.getElementById('stat-avg-score');
+            const statHighestEl = document.getElementById('stat-highest-score');
+            const statHardestEl = document.getElementById('stat-hardest-q');
+            
+            if (statTotalEl) statTotalEl.innerText = `${totalStudents} نفر`;
+
+            if (totalStudents === 0) {
+                if (statAvgEl) statAvgEl.innerText = '0%';
+                if (statHighestEl) statHighestEl.innerText = '0%';
+                if (statHardestEl) statHardestEl.innerText = 'سوال -';
+                renderSubmissionsTable([]);
+                renderDifficultyChart({}, 0);
+                return;
+            }
+
+            let sumScore = 0;
+            let maxScore = 0;
+            const correctPerQuestion = {};
+            if (window.EXAM_QUESTIONS) {
+                window.EXAM_QUESTIONS.forEach(q => correctPerQuestion[q.id] = 0);
+            }
+
+            list.forEach(sub => {
+                const score = Number(sub.scorePercent || 0);
+                sumScore += score;
+                if (score > maxScore) maxScore = score;
+
+                if (sub.answers) {
+                    Object.keys(sub.answers).forEach(qId => {
+                        if (sub.answers[qId] && sub.answers[qId].isCorrect) {
+                            correctPerQuestion[qId] = (correctPerQuestion[qId] || 0) + 1;
+                        }
+                    });
+                }
+            });
+
+            const avgScore = Math.round(sumScore / totalStudents);
+            if (statAvgEl) statAvgEl.innerText = `${avgScore}%`;
+            if (statHighestEl) statHighestEl.innerText = `${maxScore}%`;
+
+            let hardestQId = 1;
+            let lowestCorrectRate = 100;
+
+            if (window.EXAM_QUESTIONS) {
+                window.EXAM_QUESTIONS.forEach(q => {
+                    const correctCount = correctPerQuestion[q.id] || 0;
+                    const rate = (correctCount / totalStudents) * 100;
+                    if (rate <= lowestCorrectRate) {
+                        lowestCorrectRate = rate;
+                        hardestQId = q.id;
+                    }
+                });
+            }
+
+            if (statHardestEl) {
+                statHardestEl.innerText = `سوال ${hardestQId} (${Math.round(lowestCorrectRate)}٪ درست)`;
+            }
+
+            renderSubmissionsTable(list);
+            renderDifficultyChart(correctPerQuestion, totalStudents);
+        }
+
+        function renderSubmissionsTable(list) {
+            const tbody = document.getElementById('submissions-table-body');
+            if (!tbody) return;
+
+            if (!list || list.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="p-8 text-center text-slate-400">
+                            <i class="fa-solid fa-inbox text-3xl mb-2 block"></i>
+                            هنوز پاسخی ثبت نشده است. دانش‌آموزان با دادن آزمون، نتایج خود را به این جدول ارسال خواهند کرد.
+                        </td>
+                    </tr>`;
+                return;
+            }
+
+            tbody.innerHTML = '';
+            list.forEach((sub, idx) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+
+                const formattedDate = sub.createdAt ? new Date(sub.createdAt).toLocaleString('fa-IR') : '-';
+
+                tr.innerHTML = `
+                    <td class="p-4 font-bold text-slate-400">${idx + 1}</td>
+                    <td class="p-4 font-bold text-slate-900">${escapeHtml(sub.studentName)}</td>
+                    <td class="p-4 font-mono text-slate-600">${escapeHtml(sub.studentId)}</td>
+                    <td class="p-4 font-black text-brand-600">${sub.scorePercent || 0}%</td>
+                    <td class="p-4 text-emerald-600 font-bold">${sub.correctCount || 0} از ۱۰</td>
+                    <td class="p-4 font-mono dir-ltr text-right text-slate-600">${escapeHtml(sub.timeSpent)}</td>
+                    <td class="p-4 text-xs text-slate-500">${formattedDate}</td>
+                    <td class="p-4 text-center">
+                        <button onclick="openStudentModal(${idx})" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-brand-50 hover:text-brand-600 text-slate-600 font-semibold text-xs transition border border-slate-200">
+                            <i class="fa-solid fa-eye ml-1"></i> مشاهده
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderDifficultyChart(correctPerQuestion, totalStudents) {
+            const container = document.getElementById('question-difficulty-bars');
+            if (!container || !window.EXAM_QUESTIONS) return;
+            container.innerHTML = '';
+
+            window.EXAM_QUESTIONS.forEach(q => {
+                const correctCount = correctPerQuestion[q.id] || 0;
+                const percent = totalStudents > 0 ? Math.round((correctCount / totalStudents) * 100) : 0;
+
+                let barColor = "bg-emerald-500";
+                if (percent < 40) barColor = "bg-rose-500";
+                else if (percent < 70) barColor = "bg-amber-500";
+
+                const barWrapper = document.createElement('div');
+                barWrapper.className = "space-y-1.5 p-3 rounded-xl bg-slate-50 border border-slate-100";
+                barWrapper.innerHTML = `
+                    <div class="flex items-center justify-between text-xs font-bold">
+                        <span class="text-slate-800">سوال ${q.id} (سطح ${q.bloom}): <span class="font-normal text-slate-500">${escapeHtml(q.question.substring(0, 55))}...</span></span>
+                        <span class="font-mono ${percent < 40 ? 'text-rose-600' : 'text-slate-700'}">${percent}% پاسخ صحیح (${correctCount}/${totalStudents})</span>
+                    </div>
+                    <div class="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
+                        <div class="${barColor} h-2.5 rounded-full transition-all duration-500" style="width: ${percent}%;"></div>
+                    </div>
+                `;
+                container.appendChild(barWrapper);
+            });
+        }
+
+        function openStudentModal(subIdx) {
+            const sub = (window.submissionsList || [])[subIdx];
+            if (!sub) return;
+
+            document.getElementById('modal-student-title').innerText = `پاسخ‌نامه: ${sub.studentName || 'دانشجو'}`;
+            document.getElementById('modal-student-sub').innerText = `شماره دانشجویی: ${sub.studentId || '-'} | نمره: ${sub.scorePercent || 0}% | زمان: ${sub.timeSpent || '-'}`;
+
+            const body = document.getElementById('modal-student-body');
+            body.innerHTML = '';
+
+            window.EXAM_QUESTIONS.forEach(q => {
+                const qAns = sub.answers ? sub.answers[q.id] : null;
+                const selected = qAns ? qAns.selectedOption : -1;
+                const isCorrect = qAns ? qAns.isCorrect : false;
+
+                const card = document.createElement('div');
+                card.className = `p-4 rounded-xl border ${isCorrect ? 'bg-emerald-50/50 border-emerald-200' : (selected === -1 ? 'bg-slate-50 border-slate-200' : 'bg-rose-50/50 border-rose-200')}`;
+
+                let statusBadge = `<span class="px-2.5 py-1 rounded-md text-xs font-bold ${isCorrect ? 'bg-emerald-100 text-emerald-800' : (selected === -1 ? 'bg-slate-200 text-slate-600' : 'bg-rose-100 text-rose-800')}">
+                    ${isCorrect ? 'پاسخ صحیح' : (selected === -1 ? 'بدون پاسخ' : 'پاسخ نادرست')}
+                </span>`;
+
+                let optionsHtml = '';
+                q.options.forEach((optText, optIdx) => {
+                    let optClass = "text-slate-600 border-slate-200";
+                    if (optIdx === q.correctAnswer) {
+                        optClass = "text-emerald-900 bg-emerald-100/80 border-emerald-300 font-bold";
+                    }
+                    if (optIdx === selected && !isCorrect) {
+                        optClass = "text-rose-900 bg-rose-100/80 border-rose-300 font-bold line-through";
+                    }
+
+                    optionsHtml += `<div class="p-2.5 rounded-lg border text-xs ${optClass}">${escapeHtml(optText)}</div>`;
+                });
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-bold text-xs text-slate-800">سوال ${q.id} (سطح بلوم: ${q.bloom})</span>
+                        ${statusBadge}
+                    </div>
+                    <p class="text-xs font-semibold text-slate-800 mb-3 leading-relaxed">${escapeHtml(q.question)}</p>
+                    <div class="space-y-2 mb-3">${optionsHtml}</div>
+                    <p class="text-xs text-slate-500 bg-white p-2.5 rounded-lg border border-slate-200">
+                        <i class="fa-solid fa-lightbulb text-amber-500 ml-1"></i> <strong>تحلیل روان‌سنجی:</strong> ${escapeHtml(q.analysis)}
+                    </p>
+                `;
+
+                body.appendChild(card);
+            });
+
+            document.getElementById('student-detail-modal').classList.remove('hidden');
+        }
+
+        function closeStudentModal() {
+            document.getElementById('student-detail-modal').classList.add('hidden');
+        }
+
+        function exportResultsCSV() {
+            const list = window.submissionsList || [];
+            if (list.length === 0) {
+                alert("هیچ داده‌ای برای خروجی وجود ندارد.");
+                return;
+            }
+
+            let csvContent = "\uFEFF";
+            csvContent += "ردیف,نام دانشجو,شماره دانشجویی,نمره (درصد),پاسخ صحیح,زمان آزمون,تاریخ ثبت\n";
+
+            list.forEach((sub, idx) => {
+                const dateStr = sub.createdAt ? new Date(sub.createdAt).toLocaleString('fa-IR') : '-';
+                csvContent += `${idx + 1},"${sub.studentName || ''}","${sub.studentId || ''}",${sub.scorePercent || 0},${sub.correctCount || 0}/10,"${sub.timeSpent || ''}","${dateStr}"\n`;
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `azmoon_results_${Date.now()}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
 
         function switchTab(tab) {
             const studentView = document.getElementById('student-view');
@@ -618,11 +956,36 @@
                 studentBtn.className = "px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 bg-brand-600 text-white shadow";
                 teacherBtn.className = "px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 text-slate-300 hover:text-white hover:bg-slate-700/60";
             } else {
+                if (!isTeacherAuthenticated) {
+                    openTeacherAuthModal();
+                    return;
+                }
                 studentView.classList.add('hidden');
                 teacherView.classList.remove('hidden');
                 teacherBtn.className = "px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 bg-brand-600 text-white shadow";
                 studentBtn.className = "px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 text-slate-300 hover:text-white hover:bg-slate-700/60";
                 if (window.refreshDataFromFirestore) window.refreshDataFromFirestore();
+            }
+        }
+
+        function openTeacherAuthModal() {
+            document.getElementById('teacher-password-input').value = '';
+            document.getElementById('teacher-auth-error').classList.add('hidden');
+            document.getElementById('teacher-auth-modal').classList.remove('hidden');
+        }
+
+        function closeTeacherAuthModal() {
+            document.getElementById('teacher-auth-modal').classList.add('hidden');
+        }
+
+        function verifyTeacherPassword() {
+            const pwd = document.getElementById('teacher-password-input').value;
+            if (pwd === TEACHER_PASSWORD) {
+                isTeacherAuthenticated = true;
+                closeTeacherAuthModal();
+                switchTab('teacher');
+            } else {
+                document.getElementById('teacher-auth-error').classList.remove('hidden');
             }
         }
 
@@ -641,21 +1004,48 @@
 
             currentQuestionIndex = 0;
             studentAnswers = {};
-            secondsElapsed = 0;
-            startTimer();
+            totalTimeSeconds = 0;
 
+            startTotalExamTimer();
             renderQuestion();
-            renderQuestionPills();
         }
 
-        function startTimer() {
-            clearInterval(timerInterval);
-            timerInterval = setInterval(() => {
-                secondsElapsed++;
-                const mins = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
-                const secs = String(secondsElapsed % 60).padStart(2, '0');
-                document.getElementById('exam-timer').innerText = `${mins}:${secs}`;
+        function startTotalExamTimer() {
+            clearInterval(totalExamTimerInterval);
+            totalExamTimerInterval = setInterval(() => {
+                totalTimeSeconds++;
             }, 1000);
+        }
+
+        function startQuestionTimer() {
+            clearInterval(questionTimerInterval);
+            questionSecondsLeft = window.questionTimeLimit || 45;
+            updateTimerUI();
+
+            questionTimerInterval = setInterval(() => {
+                questionSecondsLeft--;
+                updateTimerUI();
+
+                if (questionSecondsLeft <= 0) {
+                    clearInterval(questionTimerInterval);
+                    if (currentQuestionIndex < window.EXAM_QUESTIONS.length - 1) {
+                        currentQuestionIndex++;
+                        renderQuestion();
+                    } else {
+                        processExamSubmission();
+                    }
+                }
+            }, 1000);
+        }
+
+        function updateTimerUI() {
+            const displayEl = document.getElementById('question-timer-display');
+            if (displayEl) displayEl.innerText = questionSecondsLeft;
+
+            const limit = window.questionTimeLimit || 45;
+            const percentage = (questionSecondsLeft / limit) * 100;
+            const barEl = document.getElementById('question-timer-bar');
+            if (barEl) barEl.style.width = `${percentage}%`;
         }
 
         function renderQuestion() {
@@ -664,9 +1054,6 @@
 
             document.getElementById('question-badge-counter').innerText = `سوال ${currentQuestionIndex + 1} از ۱۰`;
             document.getElementById('bloom-level-tag').innerText = `سطح بلوم: ${q.bloom}`;
-            
-            const percent = ((currentQuestionIndex + 1) / 10) * 100;
-            document.getElementById('progress-bar').style.width = `${percent}%`;
 
             document.getElementById('question-text').innerText = q.question;
 
@@ -708,11 +1095,28 @@
             }
 
             renderQuestionPills();
+            startQuestionTimer();
         }
 
         function selectAnswer(qId, optionIdx) {
             studentAnswers[qId] = optionIdx;
-            renderQuestion();
+            const optionsContainer = document.getElementById('options-container');
+            const buttons = optionsContainer.getElementsByTagName('button');
+            Array.from(buttons).forEach((btn, idx) => {
+                const isSelected = idx === optionIdx;
+                btn.className = `w-full text-right p-4 rounded-xl border-2 transition-all duration-200 flex items-start space-x-3 space-x-reverse ${
+                    isSelected 
+                        ? 'border-brand-600 bg-brand-50/80 text-brand-900 shadow-sm font-semibold' 
+                        : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700'
+                }`;
+                const checkDiv = btn.querySelector('div');
+                if (checkDiv) {
+                    checkDiv.className = `w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 ${
+                        isSelected ? 'border-brand-600 bg-brand-600 text-white' : 'border-slate-300 text-transparent'
+                    }`;
+                }
+            });
+            renderQuestionPills();
         }
 
         function navigateQuestion(step) {
@@ -747,23 +1151,13 @@
         }
 
         function confirmExamSubmission() {
-            const answeredCount = Object.keys(studentAnswers).length;
-            if (answeredCount < 10) {
-                const unanswered = 10 - answeredCount;
-                if (!confirm(`شما به ${unanswered} سوال پاسخ نداده‌اید. آیا از ثبت نهایی اطمینان دارید؟`)) {
-                    return;
-                }
-            } else {
-                if (!confirm("آیا از ارسال نهایی پاسخ‌نامه مطمئن هستید؟")) {
-                    return;
-                }
-            }
-
-            clearInterval(timerInterval);
             processExamSubmission();
         }
 
         function processExamSubmission() {
+            clearInterval(questionTimerInterval);
+            clearInterval(totalExamTimerInterval);
+
             let correctCount = 0;
             const detailedAnswers = {};
 
@@ -780,7 +1174,9 @@
             });
 
             const totalScore = Math.round((correctCount / 10) * 100);
-            const timeFormatted = document.getElementById('exam-timer').innerText;
+            const mins = String(Math.floor(totalTimeSeconds / 60)).padStart(2, '0');
+            const secs = String(totalTimeSeconds % 60).padStart(2, '0');
+            const timeFormatted = `${mins}:${secs}`;
 
             const submissionPayload = {
                 studentName: currentStudentInfo.name,
@@ -792,12 +1188,10 @@
                 answers: detailedAnswers
             };
 
-            // Save to Firestore
             if (window.saveSubmissionToFirestore) {
                 window.saveSubmissionToFirestore(submissionPayload);
             }
 
-            // Display Result Screen
             document.getElementById('exam-card').classList.add('hidden');
             document.getElementById('result-card').classList.remove('hidden');
 
@@ -813,185 +1207,12 @@
             document.getElementById('student-info-form').reset();
             studentAnswers = {};
             currentQuestionIndex = 0;
-            secondsElapsed = 0;
+            clearInterval(questionTimerInterval);
+            clearInterval(totalExamTimerInterval);
         }
 
-        function updateUIWithSubmissions(list) {
-            const tableBody = document.getElementById('submissions-table-body');
-            const totalCountEl = document.getElementById('stat-total-students');
-            const avgScoreEl = document.getElementById('stat-avg-score');
-            const highestScoreEl = document.getElementById('stat-highest-score');
-            const hardestQEl = document.getElementById('stat-hardest-q');
-
-            if (!list || list.length === 0) {
-                totalCountEl.innerText = "0 نفر";
-                avgScoreEl.innerText = "0%";
-                highestScoreEl.innerText = "0%";
-                hardestQEl.innerText = "سوال -";
-                tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="8" class="p-8 text-center text-slate-400">
-                            <i class="fa-solid fa-inbox text-3xl mb-2 block"></i>
-                            هنوز پاسخی ثبت نشده است. دانش‌آموزان با انجام آزمون، نتایج خود را به‌صورت زنده به این بخش ارسال خواهند کرد.
-                        </td>
-                    </tr>
-                `;
-                renderDifficultyBars({}, 0);
-                return;
-            }
-
-            const totalStudents = list.length;
-            let sumScore = 0;
-            let maxScore = 0;
-            const qCorrectCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0 };
-
-            list.forEach(sub => {
-                sumScore += sub.scorePercent || 0;
-                if ((sub.scorePercent || 0) > maxScore) maxScore = sub.scorePercent;
-
-                if (sub.answers) {
-                    Object.keys(sub.answers).forEach(qId => {
-                        if (sub.answers[qId].isCorrect) {
-                            qCorrectCounts[qId] = (qCorrectCounts[qId] || 0) + 1;
-                        }
-                    });
-                }
-            });
-
-            const avgScore = Math.round(sumScore / totalStudents);
-
-            let minCorrect = totalStudents + 1;
-            let hardestQId = 1;
-            Object.keys(qCorrectCounts).forEach(qId => {
-                if (qCorrectCounts[qId] < minCorrect) {
-                    minCorrect = qCorrectCounts[qId];
-                    hardestQId = qId;
-                }
-            });
-
-            totalCountEl.innerText = `${totalStudents} نفر`;
-            avgScoreEl.innerText = `${avgScore}%`;
-            highestScoreEl.innerText = `${maxScore}%`;
-            hardestQEl.innerText = `سوال ${hardestQId} (${Math.round((qCorrectCounts[hardestQId]/totalStudents)*100)}% صحیح)`;
-
-            tableBody.innerHTML = '';
-            list.forEach((sub, index) => {
-                const dateStr = sub.createdAt ? new Date(sub.createdAt).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' }) + ' - ' + new Date(sub.createdAt).toLocaleDateString('fa-IR') : 'امروز';
-
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
-                tr.innerHTML = `
-                    <td class="p-4 font-bold text-slate-400">${index + 1}</td>
-                    <td class="p-4 font-bold text-slate-900">${sub.studentName || 'نامشخص'}</td>
-                    <td class="p-4 font-mono text-slate-600">${sub.studentId || '-'}</td>
-                    <td class="p-4">
-                        <span class="px-2.5 py-1 rounded-md text-xs font-black ${sub.scorePercent >= 70 ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
-                            ${sub.scorePercent}%
-                        </span>
-                    </td>
-                    <td class="p-4 font-bold text-emerald-600">${sub.correctCount} / 10</td>
-                    <td class="p-4 font-mono dir-ltr text-slate-600">${sub.timeSpent || '-'}</td>
-                    <td class="p-4 text-xs text-slate-500">${dateStr}</td>
-                    <td class="p-4 text-center">
-                        <button onclick="openStudentModal('${sub.id}')" class="px-3 py-1.5 rounded-lg bg-brand-50 hover:bg-brand-100 text-brand-700 text-xs font-bold transition">
-                            مشاهده برگه
-                        </button>
-                    </td>
-                `;
-                tableBody.appendChild(tr);
-            });
-
-            renderDifficultyBars(qCorrectCounts, totalStudents);
-        }
-
-        function renderDifficultyBars(qCorrectCounts, totalStudents) {
-            const container = document.getElementById('question-difficulty-bars');
-            if (!container) return;
-            container.innerHTML = '';
-
-            if (!totalStudents) {
-                container.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">داده‌ای برای تحلیل وجود ندارد.</p>`;
-                return;
-            }
-
-            window.EXAM_QUESTIONS.forEach(q => {
-                const correct = qCorrectCounts[q.id] || 0;
-                const percent = Math.round((correct / totalStudents) * 100);
-
-                const item = document.createElement('div');
-                item.className = "space-y-1";
-                item.innerHTML = `
-                    <div class="flex items-center justify-between text-xs">
-                        <span class="font-bold text-slate-700">سوال ${q.id} (${q.bloom}): <span class="font-normal text-slate-500">${q.question.substring(0, 70)}...</span></span>
-                        <span class="font-bold text-slate-800">${percent}% (${correct} از ${totalStudents} نفر)</span>
-                    </div>
-                    <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
-                        <div class="h-2.5 rounded-full transition-all duration-500 ${percent >= 70 ? 'bg-emerald-500' : percent >= 40 ? 'bg-amber-500' : 'bg-rose-500'}" style="width: ${percent}%;"></div>
-                    </div>
-                `;
-                container.appendChild(item);
-            });
-        }
-
-        function openStudentModal(subId) {
-            const sub = (window.submissionsList || []).find(s => s.id === subId);
-            if (!sub) return;
-
-            document.getElementById('modal-student-title').innerText = `پاسخ‌نامه دانشجو: ${sub.studentName}`;
-            document.getElementById('modal-student-sub').innerText = `شماره دانشجویی: ${sub.studentId} | نمره کل: ${sub.scorePercent}% (${sub.correctCount} از ۱۰ صحیح)`;
-
-            const body = document.getElementById('modal-student-body');
-            body.innerHTML = '';
-
-            window.EXAM_QUESTIONS.forEach((q, idx) => {
-                const userAns = sub.answers ? sub.answers[q.id] : null;
-                const isCorrect = userAns ? userAns.isCorrect : false;
-                const selectedOpt = userAns && userAns.selectedOption >= 0 ? q.options[userAns.selectedOption] : 'پاسخ داده نشده';
-
-                const div = document.createElement('div');
-                div.className = `p-4 rounded-xl border text-xs ${isCorrect ? 'bg-emerald-50 border-emerald-200' : 'bg-rose-50 border-rose-200'} space-y-2`;
-                div.innerHTML = `
-                    <div class="flex items-center justify-between font-bold">
-                        <span>سوال ${idx + 1}: ${q.question}</span>
-                        <span class="${isCorrect ? 'text-emerald-700' : 'text-rose-700'}">${isCorrect ? 'صحیح ✓' : 'نادرست ✗'}</span>
-                    </div>
-                    <div><span class="font-bold">گزینه انتخابی دانشجو:</span> ${selectedOpt}</div>
-                    <div class="text-slate-600"><span class="font-bold">گزینه صحیح:</span> ${q.options[q.correctAnswer]}</div>
-                `;
-                body.appendChild(div);
-            });
-
-            document.getElementById('student-detail-modal').classList.remove('hidden');
-        }
-
-        function closeStudentModal() {
-            document.getElementById('student-detail-modal').classList.add('hidden');
-        }
-
-        function exportResultsCSV() {
-            const list = window.submissionsList || [];
-            if (list.length === 0) {
-                alert("هیچ داده‌ای برای خروجی گرفتن وجود ندارد.");
-                return;
-            }
-
-            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
-            csvContent += "نام دانشجو,شماره دانشجویی,نمره درصد,تعداد پاسخ درست,زمان سپری شده,تاریخ ثبت\n";
-
-            list.forEach(row => {
-                csvContent += `"${row.studentName || ''}","${row.studentId || ''}",${row.scorePercent || 0},${row.correctCount || 0},"${row.timeSpent || ''}","${row.createdAt || ''}"\n`;
-            });
-
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `نتایج_آزمون_سنجش_${new Date().toLocaleDateString('fa-IR')}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        // Attach functions to window scope
+        // Export functions to window scope for HTML listeners
+        window.updateUIWithSubmissions = updateUIWithSubmissions;
         window.switchTab = switchTab;
         window.startExam = startExam;
         window.navigateQuestion = navigateQuestion;
@@ -1000,6 +1221,8 @@
         window.openStudentModal = openStudentModal;
         window.closeStudentModal = closeStudentModal;
         window.exportResultsCSV = exportResultsCSV;
+        window.verifyTeacherPassword = verifyTeacherPassword;
+        window.closeTeacherAuthModal = closeTeacherAuthModal;
     </script>
 </body>
 </html>
